@@ -3,92 +3,213 @@ using System.Windows.Forms;
 
 namespace WinFormsApp1
 {
-    //Создайте интерфейс фабрики
-    public interface ICharacterFactory
+    // Абстрактная фабрика
+    public abstract class AbstractCharacterFactory
     {
-        Character CreateCharacter();
+        public abstract AbstractCharacter CreateCharacter();
+        public abstract AbstractEquipment CreateEquipment();
     }
 
-    //Создайте базовый класс Character
-    public abstract class Character
+    // Абстрактный класс персонажа
+    public abstract class AbstractCharacter
     {
         public string Name { get; set; }
         public int Health { get; set; }
-        public string Equipment { get; set; }
 
         public abstract string GetInfo();
     }
 
-    //Создайте конкретные классы персонажей
-    public class Pet : Character
+    // Абстрактный класс экипировки
+    public abstract class AbstractEquipment
     {
-        public Pet(string name, int health, string equipment)
+        public string Name { get; set; }
+        public int AttackPower { get; set; }
+
+        public abstract string GetInfo();
+    }
+
+    // Конкретные классы персонажей
+    public class Pet : AbstractCharacter
+    {
+        public Pet(string name, int health)
         {
             Name = name;
             Health = health;
-            Equipment = equipment;
         }
 
         public override string GetInfo()
         {
-            return $"Питомец: {Name}, Здоровье: {Health}, Оружие: {Equipment}";
+            return $"Питомец: {Name},\nЗдоровье: {Health}";
         }
     }
 
-    public class Npc : Character
+    public class Npc : AbstractCharacter
     {
-        public Npc(string name, int health, string equipment)
+        public Npc(string name, int health)
         {
             Name = name;
             Health = health;
-            Equipment = equipment;
         }
 
         public override string GetInfo()
         {
-            return $"NPC: {Name}, Здоровье: {Health}, Оружие: {Equipment}";
+            return $"NPC: {Name},\nЗдоровье: {Health}";
         }
     }
 
-    public class Boss : Character
+    public class Boss : AbstractCharacter
     {
-        public Boss(string name, int health, string equipment)
+        public Boss(string name, int health)
         {
             Name = name;
             Health = health;
-            Equipment = equipment;
         }
 
         public override string GetInfo()
         {
-            return $"Босс: {Name}, Здоровье: {Health}, Оружие: {Equipment}";
+            return $"Босс: {Name},\nЗдоровье: {Health}";
         }
     }
 
-    //Создайте конкретные фабрики
-    public class PetFactory : ICharacterFactory
+    // Конкретные классы экипировки
+    public class MeleeWeapon : AbstractEquipment
     {
-        public Character CreateCharacter()
+        public MeleeWeapon(string name, int attackPower)
         {
-            // Можно добавить настройку характеристик
-            return new Pet("Кот", 100, "Мяч");
+            Name = name;
+            AttackPower = attackPower;
+        }
+
+        public override string GetInfo()
+        {
+            return $"Ближнее оружие: {Name},\nСила атаки оружия: {AttackPower}";
         }
     }
 
-    public class NpcFactory : ICharacterFactory
+    public class RangedWeapon : AbstractEquipment
     {
-        public Character CreateCharacter()
+        public RangedWeapon(string name, int attackPower)
         {
-            return new Npc("Торговец", 80, "Кинжал");
+            Name = name;
+            AttackPower = attackPower;
+        }
+
+        public override string GetInfo()
+        {
+            return $"Дальнее оружие: {Name},\nСила атаки оружия: {AttackPower}";
         }
     }
 
-    public class BossFactory : ICharacterFactory
+    public class MagicWeapon : AbstractEquipment
     {
-        public Character CreateCharacter()
+        public MagicWeapon(string name, int attackPower)
         {
-            return new Boss("Дракон", 1000, "Огненное дыхание");
+            Name = name;
+            AttackPower = attackPower;
+        }
+
+        public override string GetInfo()
+        {
+            return $"Магическое оружие: {Name},\nСила атаки оружия: {AttackPower}";
         }
     }
 
+    // Конкретные фабрики
+    public class PetFactory : AbstractCharacterFactory
+    {
+        public override AbstractCharacter CreateCharacter()
+        {
+            return new Pet("Кот", 100);
+        }
+
+        public override AbstractEquipment CreateEquipment()
+        {
+            return new MeleeWeapon("Когти", 20);
+        }
+    }
+
+    public class NpcFactory : AbstractCharacterFactory
+    {
+        public override AbstractCharacter CreateCharacter()
+        {
+            return new Npc("Торговец", 50);
+        }
+
+        public override AbstractEquipment CreateEquipment()
+        {
+            return new MeleeWeapon("Кинжал", 30);
+        }
+    }
+
+    public class BossFactory : AbstractCharacterFactory
+    {
+        public override AbstractCharacter CreateCharacter()
+        {
+            return new Boss("Дракон", 1000);
+        }
+
+        public override AbstractEquipment CreateEquipment()
+        {
+            return new MagicWeapon("Огненное дыхание", 200);
+        }
+    }
+
+    // Босс с топором (альтернативная фабрика)
+    public class BossWithAxeFactory : AbstractCharacterFactory
+    {
+        public override AbstractCharacter CreateCharacter()
+        {
+            return new Boss("Орк-Вождь", 800);
+        }
+
+        public override AbstractEquipment CreateEquipment()
+        {
+            return new MeleeWeapon("Топор разрушения", 150);
+        }
+    }
+
+    // Босс со щитом (альтернативная фабрика)
+    public class BossWithShieldFactory : AbstractCharacterFactory
+    {
+        public override AbstractCharacter CreateCharacter()
+        {
+            return new Boss("Рыцарь-Защитник", 1200);
+        }
+
+        public override AbstractEquipment CreateEquipment()
+        {
+            return new MeleeWeapon("Щит праведности", 80);
+        }
+    }
+
+    // Клиент
+    public class CharacterClient
+    {
+        private AbstractCharacter character;
+        private AbstractEquipment equipment;
+
+        public CharacterClient(AbstractCharacterFactory factory)
+        {
+            character = factory.CreateCharacter();
+            equipment = factory.CreateEquipment();
+        }
+
+        // Метод для получения информации в виде строки
+        public string GetCharacterInfo()
+        {
+            //return character.GetInfo() + "\n\n" +
+            //       equipment.GetInfo() + "\n\n" +
+            //       $"Общая характеристика: {character.Name} с {equipment.Name}";
+            return character.GetInfo() + Environment.NewLine + Environment.NewLine +
+               equipment.GetInfo() + Environment.NewLine + Environment.NewLine +
+               $"Общая характеристика: {character.Name} с {equipment.Name}";
+        }
+
+        // Старый метод для вывода в MessageBox (можно оставить для обратной совместимости)
+        public void DisplayInfo()
+        {
+            string info = GetCharacterInfo();
+            MessageBox.Show(info, "Информация о персонаже");
+        }
+    }
 }
