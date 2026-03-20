@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Windows.Forms;
 
 namespace WinFormsApp1
@@ -8,18 +8,18 @@ namespace WinFormsApp1
         public Form1()
         {
             InitializeComponent();
-
-            // Инициализация элементов UI
+   
+            // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЌР»РµРјРµРЅС‚РѕРІ UI
             comboBoxCharacterType.Items.AddRange(new string[] {
-                "Питомец",
+                "РџРёС‚РѕРјРµС†",
                 "NPC",
-                "Дракон-Босс",
-                "Орк-Босс с топором",
-                "Рыцарь-Босс со щитом"
+                "Р”СЂР°РєРѕРЅ-Р‘РѕСЃСЃ",
+                "РћСЂРє-Р‘РѕСЃСЃ СЃ С‚РѕРїРѕСЂРѕРј",
+                "Р С‹С†Р°СЂСЊ-Р‘РѕСЃСЃ СЃРѕ С‰РёС‚РѕРј"
             });
             comboBoxCharacterType.SelectedIndex = 0;
 
-            // Обработчик события
+            // РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ
             buttonCreate.Click += ButtonCreate_Click;
         }
 
@@ -28,34 +28,34 @@ namespace WinFormsApp1
             string selectedType = comboBoxCharacterType.SelectedItem.ToString();
             AbstractCharacterFactory factory;
 
-            // В зависимости от типа создаем соответствующую фабрику
+            // Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РёРїР° СЃРѕР·РґР°РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ С„Р°Р±СЂРёРєСѓ
             factory = selectedType switch
             {
-                "Питомец" => new PetFactory(),
+                "РџРёС‚РѕРјРµС†" => new PetFactory(),
                 "NPC" => new NpcFactory(),
-                "Дракон-Босс" => new BossFactory(),
-                "Орк-Босс с топором" => new BossWithAxeFactory(),
-                "Рыцарь-Босс со щитом" => new BossWithShieldFactory(),
+                "Р”СЂР°РєРѕРЅ-Р‘РѕСЃСЃ" => new BossFactory(),
+                "РћСЂРє-Р‘РѕСЃСЃ СЃ С‚РѕРїРѕСЂРѕРј" => new BossWithAxeFactory(),
+                "Р С‹С†Р°СЂСЊ-Р‘РѕСЃСЃ СЃРѕ С‰РёС‚РѕРј" => new BossWithShieldFactory(),
                 _ => null
             };
 
             if (factory != null)
             {
-                // Создаем клиента с выбранной фабрикой
+                // РЎРѕР·РґР°РµРј РєР»РёРµРЅС‚Р° СЃ РІС‹Р±СЂР°РЅРЅРѕР№ С„Р°Р±СЂРёРєРѕР№
                 CharacterClient client = new CharacterClient(factory);
 
-                // Вместо вызова DisplayInfo() получаем информацию и отображаем в textBoxInfo
+                // Р’РјРµСЃС‚Рѕ РІС‹Р·РѕРІР° DisplayInfo() РїРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рё РѕС‚РѕР±СЂР°Р¶Р°РµРј РІ textBoxInfo
                 string info = client.GetCharacterInfo();
                 textBoxInfo.Text = info;
             }
             else
             {
-                MessageBox.Show("Выберите тип персонажа", "Ошибка",
+                MessageBox.Show("Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї РїРµСЂСЃРѕРЅР°Р¶Р°", "РћС€РёР±РєР°",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        //Без паттерна (для сравнения)
+        //Р‘РµР· РїР°С‚С‚РµСЂРЅР° (РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ)
         private void buttonCreateWithoutPattern_Click(object sender, EventArgs e)
         {
             string selectedType = comboBoxCharacterType.SelectedItem.ToString();
@@ -64,37 +64,39 @@ namespace WinFormsApp1
 
             switch (selectedType)
             {
-                case "Питомец":
-                    character = new Pet("Кот", 100);
-                    equipment = new MeleeWeapon("Когти", 20);
+                case "РџРёС‚РѕРјРµС†":
+                    character = new Pet("РљРѕС‚", 100);
+                    equipment = new MeleeWeapon("РљРѕРіС‚Рё", 20);
                     break;
                 case "NPC":
-                    character = new Npc("Торговец", 50);
-                    equipment = new MeleeWeapon("Кинжал", 30);
+                    character = new Npc("РўРѕСЂРіРѕРІРµС†", 50);
+                    equipment = new MeleeWeapon("РљРёРЅР¶Р°Р»", 30);
                     break;
-                case "Дракон-Босс":
-                    character = new Boss("Дракон", 1000);
-                    equipment = new MagicWeapon("Огненное дыхание", 200);
+                case "Р”СЂР°РєРѕРЅ-Р‘РѕСЃСЃ":
+                    character = new Boss("Р”СЂР°РєРѕРЅ", 1000);
+                    equipment = new MagicWeapon("РћРіРЅРµРЅРЅРѕРµ РґС‹С…Р°РЅРёРµ", 200);
                     break;
-                case "Орк-Босс с топором":
-                    character = new Boss("Орк-Вождь", 800);
-                    equipment = new MeleeWeapon("Топор разрушения", 150);
+                case "РћСЂРє-Р‘РѕСЃСЃ СЃ С‚РѕРїРѕСЂРѕРј":
+                    character = new Boss("РћСЂРє-Р’РѕР¶РґСЊ", 800);
+                    equipment = new MeleeWeapon("РўРѕРїРѕСЂ СЂР°Р·СЂСѓС€РµРЅРёСЏ", 150);
                     break;
-                case "Рыцарь-Босс со щитом":
-                    character = new Boss("Рыцарь-Защитник", 1200);
-                    equipment = new MeleeWeapon("Щит праведности", 80);
+                case "Р С‹С†Р°СЂСЊ-Р‘РѕСЃСЃ СЃРѕ С‰РёС‚РѕРј":
+                    character = new Boss("Р С‹С†Р°СЂСЊ-Р—Р°С‰РёС‚РЅРёРє", 1200);
+                    equipment = new MeleeWeapon("Р©РёС‚ РїСЂР°РІРµРґРЅРѕСЃС‚Рё", 80);
                     break;
                 default:
-                    MessageBox.Show("Выберите тип персонажа");
+                    MessageBox.Show("Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї РїРµСЂСЃРѕРЅР°Р¶Р°");
                     return;
             }
 
-            // Вывод информации о персонаже и экипировке
+            // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїРµСЂСЃРѕРЅР°Р¶Рµ Рё СЌРєРёРїРёСЂРѕРІРєРµ
             string info = character.GetInfo() + "\n" +
                          equipment.GetInfo() + "\n" +
-                         $"Общая характеристика: {character.Name} с {equipment.Name}";
+                         $"РћР±С‰Р°СЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєР°: {character.Name} СЃ {equipment.Name}";
 
             textBoxInfo.Text = info;
         }
     }
+
+
 }
