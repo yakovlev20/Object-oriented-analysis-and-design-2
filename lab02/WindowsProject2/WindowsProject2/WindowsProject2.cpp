@@ -365,6 +365,12 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
+        // Изменяем размер окна
+        RECT rcWindow;
+        GetWindowRect(hDlg, &rcWindow);
+        int width = 450;  // новая ширина
+        int height = 350; // новая высота
+
         // Создаем элементы для окна "О программе"
         HWND hText = CreateWindowW(L"STATIC",
             L"Лабораторная работа №2: Паттерн Декоратор\n\n"
@@ -375,7 +381,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             L"3. Усиление силы: +100 HP, +35 к урону, -0.2 к скорости\n"
             L"4. Ускорение: +0.5 к скорости, -5 к броне",
             WS_CHILD | WS_VISIBLE | SS_LEFT,
-            10, 10, 380, 200, hDlg, nullptr, hInst, nullptr);
+            10, 10, 420, 280, hDlg, nullptr, hInst, nullptr);
         return (INT_PTR)TRUE;
     }
 

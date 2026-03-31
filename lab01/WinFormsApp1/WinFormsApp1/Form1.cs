@@ -27,7 +27,7 @@ namespace WinFormsApp1
             InitializePictureBox();
 
             // Обработчики событий
-            buttonCreate.Click += ButtonCreate_Click;
+            buttonCreate.Click += buttonCreateWithoutPattern_Click;
             buttonCreateWithoutPattern.Click += buttonCreateWithoutPattern_Click;
 
             // Загружаем картинку по умолчанию при запуске
