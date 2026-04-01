@@ -1,12 +1,7 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\\u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0438\\Object-oriented-analysis-and-design-2\\lab02\\WindowsProject2\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{21005C3D-0EAA-476F-8D79-A01F0E41C091}|WindowsProject2\\WindowsProject2.vcxproj|C:\\\u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0438\\Object-oriented-analysis-and-design-2\\lab02\\WindowsProject2\\WindowsProject2\\WindowsProject2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{21005C3D-0EAA-476F-8D79-A01F0E41C091}|WindowsProject2\\WindowsProject2.vcxproj|solutionrelative:WindowsProject2\\WindowsProject2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    }
-  ],
+  "WorkspaceRootPath": "C:\\\u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0438\\Object-oriented-analysis-and-design-2\\lab02\\WindowsProject2 (\u0431\u0435\u0437 \u043F\u0430\u0442\u0442\u0435\u0440\u043D\u0430)\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,24 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "WindowsProject2.cpp",
-              "DocumentMoniker": "C:\\\u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0438\\Object-oriented-analysis-and-design-2\\lab02\\WindowsProject2\\WindowsProject2\\WindowsProject2.cpp",
-              "RelativeDocumentMoniker": "WindowsProject2\\WindowsProject2.cpp",
-              "ToolTip": "C:\\\u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0438\\Object-oriented-analysis-and-design-2\\lab02\\WindowsProject2\\WindowsProject2\\WindowsProject2.cpp",
-              "RelativeToolTip": "WindowsProject2\\WindowsProject2.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-20T11:52:03.438Z",
-              "EditorCaption": ""
             }
           ]
         }
