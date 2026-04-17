@@ -18,6 +18,7 @@
 #define ID_BUTTON_ADD_SPEED 1005
 #define ID_BUTTON_RESET 1006
 #define ID_COMBO_CHARACTER 1007
+#define ID_COMBO_DECORATORS 1008  // Новый ID для ComboBox с декораторами
 
 // Глобальные переменные:
 HINSTANCE hInst;                                // текущий экземпляр
@@ -35,6 +36,9 @@ HWND hButtonSpeed;
 HWND hButtonReset;
 HWND hStaticInfo;
 
+HWND hStaticStats = nullptr;
+HWND hStaticBuffs = nullptr;
+
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -46,9 +50,9 @@ void CreateControls(HWND hWnd);
 void ResetCharacter();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -59,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Выполнить инициализацию приложения:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
     }
@@ -78,7 +82,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
-    return (int) msg.wParam;
+    return (int)msg.wParam;
 }
 
 
@@ -89,17 +93,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT2));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINDOWSPROJECT2);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT2));
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WINDOWSPROJECT2);
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
 }
@@ -108,26 +112,26 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 // Сохраняет маркер экземпляра и создает главное окно
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
+    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+        400, 200, 900, 700, nullptr, nullptr, hInstance, nullptr); // Увеличил размер окна
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+    if (!hWnd)
+    {
+        return FALSE;
+    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
-   return TRUE;
+    return TRUE;
 }
 
 void CreateControls(HWND hWnd)
 {
-    // Создание статического текста для выбора персонажа
-    CreateWindowW(L"STATIC", L"Выберите тип персонажа:",
+    // Левая колонка - выбор персонажа и улучшения
+    CreateWindowW(L"STATIC", L"Создание персонажа:",
         WS_CHILD | WS_VISIBLE | SS_LEFT,
         20, 20, 200, 25, hWnd, nullptr, hInst, nullptr);
 
@@ -147,35 +151,55 @@ void CreateControls(HWND hWnd)
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
         240, 50, 150, 30, hWnd, (HMENU)ID_BUTTON_CREATE, hInst, nullptr);
 
+    // Группа улучшений
+    CreateWindowW(L"STATIC", L"Доступные улучшения:",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        20, 100, 200, 25, hWnd, nullptr, hInst, nullptr);
+
     // Кнопка добавления щита
     hButtonShield = CreateWindowW(L"BUTTON", L"Добавить Щит (+20 к броне)",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 100, 250, 30, hWnd, (HMENU)ID_BUTTON_ADD_SHIELD, hInst, nullptr);
+        20, 130, 250, 30, hWnd, (HMENU)ID_BUTTON_ADD_SHIELD, hInst, nullptr);
 
     // Кнопка добавления магической ауры
     hButtonMagic = CreateWindowW(L"BUTTON", L"Добавить Магическую ауру (+25 к урону, +0.3 к скорости)",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 140, 350, 30, hWnd, (HMENU)ID_BUTTON_ADD_MAGIC, hInst, nullptr);
+        20, 170, 350, 30, hWnd, (HMENU)ID_BUTTON_ADD_MAGIC, hInst, nullptr);
 
     // Кнопка добавления усиления силы
     hButtonStrength = CreateWindowW(L"BUTTON", L"Добавить Усиление силы (+100 HP, +35 к урону, -0.2 к скорости)",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 180, 400, 30, hWnd, (HMENU)ID_BUTTON_ADD_STRENGTH, hInst, nullptr);
+        20, 210, 400, 30, hWnd, (HMENU)ID_BUTTON_ADD_STRENGTH, hInst, nullptr);
 
     // Кнопка добавления ускорения
     hButtonSpeed = CreateWindowW(L"BUTTON", L"Добавить Ускорение (+0.5 к скорости, -5 к броне)",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 220, 300, 30, hWnd, (HMENU)ID_BUTTON_ADD_SPEED, hInst, nullptr);
+        20, 250, 300, 30, hWnd, (HMENU)ID_BUTTON_ADD_SPEED, hInst, nullptr);
 
     // Кнопка сброса
     hButtonReset = CreateWindowW(L"BUTTON", L"Сбросить персонажа",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 260, 200, 30, hWnd, (HMENU)ID_BUTTON_RESET, hInst, nullptr);
+        20, 290, 200, 30, hWnd, (HMENU)ID_BUTTON_RESET, hInst, nullptr);
 
-    // Статическое текстовое поле для отображения информации
-    hStaticInfo = CreateWindowW(L"STATIC", L"Персонаж не создан",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | WS_BORDER,
-        20, 300, 700, 200, hWnd, nullptr, hInst, nullptr);
+    // Правая колонка - информация о персонаже
+    CreateWindowW(L"STATIC", L"Характеристики персонажа:",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        450, 20, 200, 25, hWnd, nullptr, hInst, nullptr);
+
+    // Статическое текстовое поле для отображения характеристик
+    hStaticStats = CreateWindowW(L"STATIC", L"Персонаж не создан",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | WS_BORDER | SS_LEFTNOWORDWRAP,
+        450, 50, 400, 200, hWnd, nullptr, hInst, nullptr);
+
+    // Блок со списком примененных баффов
+    CreateWindowW(L"STATIC", L"Активные баффы:",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        450, 260, 200, 25, hWnd, nullptr, hInst, nullptr);
+
+    // Статическое текстовое поле для отображения баффов
+    hStaticBuffs = CreateWindowW(L"STATIC", L"Нет активных баффов",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | WS_BORDER | SS_LEFTNOWORDWRAP,
+        450, 290, 400, 100, hWnd, nullptr, hInst, nullptr);
 
     // Изначально деактивируем кнопки улучшений
     EnableWindow(hButtonShield, FALSE);
@@ -185,21 +209,57 @@ void CreateControls(HWND hWnd)
     EnableWindow(hButtonReset, FALSE);
 }
 
-
 void UpdateCharacterInfo(HWND hWnd)
 {
     if (!currentCharacter) return;
 
-    std::wstringstream info;
-    info << L"Текущий персонаж: " << currentCharacter->GetDescription() << L"\n\n";
-    info << L"Характеристики:\n";
-    info << L"  Здоровье: " << currentCharacter->GetHealth() << L" HP\n";
-    info << L"  Урон: " << currentCharacter->GetDamage() << L"\n";
-    info << L"  Броня: " << currentCharacter->GetArmor() << L"\n";
-    info << L"  Скорость: " << currentCharacter->GetSpeed() << L"\n\n";
-    info << L"Количество улучшений: " << currentCharacter->GetDecoratorCount();
+    // Обновляем характеристики
+    std::wstringstream stats;
+    stats << L"Текущий персонаж: " << currentCharacter->GetDescription() << L"\n\n";
+    stats << L"Характеристики:\n";
+    stats << L"  Здоровье: " << currentCharacter->GetHealth() << L" HP\n";
+    stats << L"  Урон: " << currentCharacter->GetDamage() << L"\n";
+    stats << L"  Броня: " << currentCharacter->GetArmor() << L"\n";
+    stats << L"  Скорость: " << currentCharacter->GetSpeed() << L"\n\n";
+    stats << L"Количество улучшений: " << currentCharacter->GetDecoratorCount();
 
-    SetWindowTextW(hStaticInfo, info.str().c_str());
+    SetWindowTextW(hStaticStats, stats.str().c_str());
+
+    // Обновляем список баффов
+    std::wstringstream buffs;
+
+    // Проверяем, есть ли улучшения
+    bool hasUpgrades = false;
+
+    // Добавляем каждое примененное улучшение
+    if (currentCharacter->HasUpgrade(UpgradeType::SHIELD))
+    {
+        buffs << L"• Щит (+20 к броне)\n";
+        hasUpgrades = true;
+    }
+    if (currentCharacter->HasUpgrade(UpgradeType::MAGIC_AURA))
+    {
+        buffs << L"• Магическая аура (+25 к урону, +0.3 к скорости)\n";
+        hasUpgrades = true;
+    }
+    if (currentCharacter->HasUpgrade(UpgradeType::STRENGTH))
+    {
+        buffs << L"• Усиление силы (+100 HP, +35 к урону, -0.2 к скорости)\n";
+        hasUpgrades = true;
+    }
+    if (currentCharacter->HasUpgrade(UpgradeType::SPEED))
+    {
+        buffs << L"• Ускорение (+0.5 к скорости, -5 к броне)\n";
+        hasUpgrades = true;
+    }
+
+    // Если нет улучшений, показываем заглушку
+    if (!hasUpgrades)
+    {
+        buffs << L"Нет активных баффов";
+    }
+
+    SetWindowTextW(hStaticBuffs, buffs.str().c_str());
 }
 
 void ResetCharacter()
@@ -218,6 +278,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
+        int wmEvent = HIWORD(wParam);
 
         if (wmId >= ID_BUTTON_CREATE && wmId <= ID_BUTTON_RESET)
         {
@@ -286,7 +347,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             case ID_BUTTON_RESET:
                 ResetCharacter();
-                SetWindowTextW(hStaticInfo, L"Персонаж сброшен. Создайте нового персонажа.");
+                SetWindowTextW(hStaticStats, L"Персонаж сброшен. Создайте нового персонажа.");
+                SetWindowTextW(hStaticBuffs, L"Нет активных баффов");
 
                 // Деактивируем кнопки улучшений
                 EnableWindow(hButtonShield, FALSE);
@@ -320,17 +382,68 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
-        // Рисуем заголовок
-        HFONT hFont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+        // Получаем размеры клиентской области
+        RECT rcClient;
+        GetClientRect(hWnd, &rcClient);
+
+        // Рисуем разделительную линию между левой и правой колонками
+        HPEN hPen = CreatePen(PS_SOLID, 2, RGB(200, 200, 200));
+        HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+        int dividerX = 430; // Позиция разделительной линии
+        MoveToEx(hdc, dividerX, 20, NULL);
+        LineTo(hdc, dividerX, rcClient.bottom - 20);
+
+        SelectObject(hdc, hOldPen);
+        DeleteObject(hPen);
+
+        // Рисуем заголовки с рамками
+        HFONT hTitleFont = CreateFont(18, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+        HFONT hNormalFont = CreateFont(14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
             DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
             DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
 
-        HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
-        SetTextColor(hdc, RGB(0, 0, 150));
-        TextOutW(hdc, 20, 320, L"Информация о персонаже:", 23);
+        // Левая колонка - заголовок "Управление"
+        HFONT hOldFont = (HFONT)SelectObject(hdc, hTitleFont);
+        SetTextColor(hdc, RGB(0, 0, 139)); // Темно-синий
+        SetBkMode(hdc, TRANSPARENT);
 
+        TextOutW(hdc, 20, 0, L"УПРАВЛЕНИЕ", 10);
+
+        // Правая колонка - заголовок "Информация"
+        TextOutW(hdc, 450, 0, L"ИНФОРМАЦИЯ", 11);
+
+        // Рисуем рамки вокруг информационных блоков
+        HPEN hFramePen = CreatePen(PS_SOLID, 1, RGB(100, 100, 200));
+        hOldPen = (HPEN)SelectObject(hdc, hFramePen);
+
+        // Рамка вокруг информации о характеристиках
+        Rectangle(hdc, 448, 48, 852, 252);
+
+        // Рамка вокруг списка баффов
+        Rectangle(hdc, 448, 288, 852, 392);
+
+        SelectObject(hdc, hOldPen);
+        DeleteObject(hFramePen);
+
+        // Подписи под рамками
+        SelectObject(hdc, hNormalFont);
+        SetTextColor(hdc, RGB(0, 100, 0)); // Темно-зеленый
+
+        // Подпись для информации о характеристиках
+        TextOutW(hdc, 450, 255, L"Характеристики персонажа", 24);
+
+        // Подпись для списка баффов
+        TextOutW(hdc, 450, 395, L"Активные баффы", 14);
+
+        // Восстанавливаем старый шрифт
         SelectObject(hdc, hOldFont);
-        DeleteObject(hFont);
+
+        // Освобождаем ресурсы
+        DeleteObject(hTitleFont);
+        DeleteObject(hNormalFont);
 
         EndPaint(hWnd, &ps);
         break;
@@ -342,9 +455,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         int width = LOWORD(lParam);
         int height = HIWORD(lParam);
 
-        // Можно добавить логику изменения размеров элементов
-        MoveWindow(hStaticInfo, 20, 350, width - 40, height - 380, TRUE);
+        // Обновляем размеры информационных блоков в правой колонке
+        if (width > 500 && height > 400)
+        {
+            // Характеристики персонажа
+            MoveWindow(hStaticStats, 450, 50, width - 470, 200, TRUE);
+
+            // Список баффов
+            MoveWindow(hStaticBuffs, 450, 290, width - 470, 100, TRUE);
+        }
         break;
+    }
+
+    case WM_CTLCOLORSTATIC:
+    {
+        HDC hdcStatic = (HDC)wParam;
+        HWND hwndStatic = (HWND)lParam;
+
+        // Изменяем цвет фона для информационных статических элементов
+        if (hwndStatic == hStaticStats || hwndStatic == hStaticBuffs)
+        {
+            SetTextColor(hdcStatic, RGB(0, 0, 0)); // Черный текст
+            SetBkColor(hdcStatic, RGB(240, 248, 255)); // Светло-голубой фон
+            return (LRESULT)CreateSolidBrush(RGB(240, 248, 255));
+        }
+
+        // Для остальных статических элементов - стандартный цвет
+        SetTextColor(hdcStatic, RGB(0, 0, 0));
+        SetBkColor(hdcStatic, GetSysColor(COLOR_WINDOW));
+        return (LRESULT)GetSysColorBrush(COLOR_WINDOW);
+    }
+
+    case WM_CTLCOLORBTN:
+    {
+        HDC hdcButton = (HDC)wParam;
+
+        // Настраиваем внешний вид кнопок
+        SetTextColor(hdcButton, RGB(255, 255, 255)); // Белый текст
+        SetBkColor(hdcButton, RGB(70, 130, 180)); // Steel blue фон
+
+        static HBRUSH hButtonBrush = CreateSolidBrush(RGB(70, 130, 180));
+        return (LRESULT)hButtonBrush;
+    }
+
+    case WM_CTLCOLORLISTBOX:
+    case WM_CTLCOLOREDIT:
+    {
+        HDC hdcCombo = (HDC)wParam;
+
+        // Настраиваем внешний вид ComboBox'ов
+        SetTextColor(hdcCombo, RGB(0, 0, 139)); // Темно-синий текст
+        SetBkColor(hdcCombo, RGB(240, 248, 255)); // Светло-голубой фон
+
+        static HBRUSH hComboBrush = CreateSolidBrush(RGB(240, 248, 255));
+        return (LRESULT)hComboBrush;
     }
 
     case WM_DESTROY:
@@ -366,22 +530,37 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
     {
         // Изменяем размер окна
-        RECT rcWindow;
-        GetWindowRect(hDlg, &rcWindow);
-        int width = 450;  // новая ширина
-        int height = 350; // новая высота
+        SetWindowPos(hDlg, NULL, 0, 0, 500, 400, SWP_NOMOVE | SWP_NOZORDER);
 
-        // Создаем элементы для окна "О программе"
+        // Центрируем окно
+        RECT rcOwner, rcDlg;
+        GetWindowRect(GetParent(hDlg), &rcOwner);
+        GetWindowRect(hDlg, &rcDlg);
+
+        int x = rcOwner.left + (rcOwner.right - rcOwner.left - (rcDlg.right - rcDlg.left)) / 2;
+        int y = rcOwner.top + (rcOwner.bottom - rcOwner.top - (rcDlg.bottom - rcDlg.top)) / 2;
+        SetWindowPos(hDlg, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+        // Создаем элементы для окна "О программе" с улучшенным оформлением
         HWND hText = CreateWindowW(L"STATIC",
             L"Лабораторная работа №2: Паттерн Декоратор\n\n"
-            L"Динамическое добавление характеристик персонажу\n"
+            L"Динамическое добавление характеристик персонажу\n\n"
             L"Используемые декораторы:\n"
             L"1. Щит: +20 к броне\n"
             L"2. Магическая аура: +25 к урону, +0.3 к скорости\n"
             L"3. Усиление силы: +100 HP, +35 к урону, -0.2 к скорости\n"
-            L"4. Ускорение: +0.5 к скорости, -5 к броне",
-            WS_CHILD | WS_VISIBLE | SS_LEFT,
-            10, 10, 420, 280, hDlg, nullptr, hInst, nullptr);
+            L"4. Ускорение: +0.5 к скорости, -5 к броне\n\n"
+            L"Интерфейс:\n"
+            L"- Левая колонка: управление созданием персонажа\n"
+            L"- Правая колонка: информация и список примененных улучшений",
+            WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+            10, 10, 470, 330, hDlg, nullptr, hInst, nullptr);
+
+        // Создаем кнопку ОК
+        HWND hOkButton = CreateWindowW(L"BUTTON", L"ОК",
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP,
+            200, 350, 100, 30, hDlg, (HMENU)IDOK, hInst, nullptr);
+
         return (INT_PTR)TRUE;
     }
 
@@ -392,6 +571,23 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             return (INT_PTR)TRUE;
         }
         break;
+
+    case WM_CTLCOLORSTATIC:
+    {
+        HDC hdcStatic = (HDC)wParam;
+        SetTextColor(hdcStatic, RGB(0, 0, 139)); // Темно-синий текст
+        SetBkColor(hdcStatic, RGB(240, 248, 255)); // Светло-голубой фон
+        return (LRESULT)CreateSolidBrush(RGB(240, 248, 255));
+    }
+
+    case WM_CTLCOLORBTN:
+    {
+        HDC hdcButton = (HDC)wParam;
+        SetTextColor(hdcButton, RGB(255, 255, 255));
+        SetBkColor(hdcButton, RGB(70, 130, 180));
+        static HBRUSH hAboutButtonBrush = CreateSolidBrush(RGB(70, 130, 180));
+        return (LRESULT)hAboutButtonBrush;
+    }
     }
     return (INT_PTR)FALSE;
 }

@@ -1,0 +1,395 @@
+
+#include "framework.h"
+#include "WindowsProject2.h"
+
+#include "Character.h"
+#include <sstream>
+#include <memory>
+#include <string>
+
+#define MAX_LOADSTRING 100
+
+#define ID_BUTTON_CREATE 1001
+#define ID_BUTTON_ADD_SHIELD 1002
+#define ID_BUTTON_ADD_MAGIC 1003
+#define ID_BUTTON_ADD_STRENGTH 1004
+#define ID_BUTTON_ADD_SPEED 1005
+#define ID_BUTTON_RESET 1006
+#define ID_COMBO_CHARACTER 1007
+
+// Глобальные переменные:
+HINSTANCE hInst;                                // текущий экземпляр
+WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
+WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
+
+// Глобальные переменные для управления персонажем
+std::shared_ptr<AbstractCharacter> currentCharacter;
+HWND hComboCharacter;
+HWND hButtonCreate;
+HWND hButtonShield;
+HWND hButtonMagic;
+HWND hButtonStrength;
+HWND hButtonSpeed;
+HWND hButtonReset;
+HWND hStaticInfo;
+
+// Отправить объявления функций, включенных в этот модуль кода:
+ATOM                MyRegisterClass(HINSTANCE hInstance);
+BOOL                InitInstance(HINSTANCE, int);
+LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+void UpdateCharacterInfo(HWND hWnd);
+void CreateControls(HWND hWnd);
+void ResetCharacter();
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPWSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
+{
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+
+    // Инициализация глобальных строк
+    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_WINDOWSPROJECT2, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass(hInstance);
+
+    // Выполнить инициализацию приложения:
+    if (!InitInstance (hInstance, nCmdShow))
+    {
+        return FALSE;
+    }
+
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINDOWSPROJECT2));
+
+    MSG msg;
+
+    // Цикл основного сообщения:
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    return (int) msg.wParam;
+}
+
+
+// Регистрирует класс окна
+ATOM MyRegisterClass(HINSTANCE hInstance)
+{
+    WNDCLASSEXW wcex;
+
+    wcex.cbSize = sizeof(WNDCLASSEX);
+
+    wcex.style          = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc    = WndProc;
+    wcex.cbClsExtra     = 0;
+    wcex.cbWndExtra     = 0;
+    wcex.hInstance      = hInstance;
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT2));
+    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINDOWSPROJECT2);
+    wcex.lpszClassName  = szWindowClass;
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+    return RegisterClassExW(&wcex);
+}
+
+
+// Сохраняет маркер экземпляра и создает главное окно
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+   hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
+
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
+   if (!hWnd)
+   {
+      return FALSE;
+   }
+
+   ShowWindow(hWnd, nCmdShow);
+   UpdateWindow(hWnd);
+
+   return TRUE;
+}
+
+void CreateControls(HWND hWnd)
+{
+    // Создание статического текста для выбора персонажа
+    CreateWindowW(L"STATIC", L"Выберите тип персонажа:",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        20, 20, 200, 25, hWnd, nullptr, hInst, nullptr);
+
+    // Создание ComboBox для выбора персонажа
+    hComboCharacter = CreateWindowW(L"COMBOBOX", L"",
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
+        20, 50, 200, 200, hWnd, (HMENU)ID_COMBO_CHARACTER, hInst, nullptr);
+
+    // Добавление элементов в ComboBox
+    SendMessage(hComboCharacter, CB_ADDSTRING, 0, (LPARAM)L"Питомец");
+    SendMessage(hComboCharacter, CB_ADDSTRING, 0, (LPARAM)L"NPC");
+    SendMessage(hComboCharacter, CB_ADDSTRING, 0, (LPARAM)L"Босс");
+    SendMessage(hComboCharacter, CB_SETCURSEL, 0, 0); // Выбрать первый элемент
+
+    // Кнопка создания персонажа
+    hButtonCreate = CreateWindowW(L"BUTTON", L"Создать персонажа",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        240, 50, 150, 30, hWnd, (HMENU)ID_BUTTON_CREATE, hInst, nullptr);
+
+    // Кнопка добавления щита
+    hButtonShield = CreateWindowW(L"BUTTON", L"Добавить Щит (+20 к броне)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 100, 250, 30, hWnd, (HMENU)ID_BUTTON_ADD_SHIELD, hInst, nullptr);
+
+    // Кнопка добавления магической ауры
+    hButtonMagic = CreateWindowW(L"BUTTON", L"Добавить Магическую ауру (+25 к урону, +0.3 к скорости)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 140, 350, 30, hWnd, (HMENU)ID_BUTTON_ADD_MAGIC, hInst, nullptr);
+
+    // Кнопка добавления усиления силы
+    hButtonStrength = CreateWindowW(L"BUTTON", L"Добавить Усиление силы (+100 HP, +35 к урону, -0.2 к скорости)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 180, 400, 30, hWnd, (HMENU)ID_BUTTON_ADD_STRENGTH, hInst, nullptr);
+
+    // Кнопка добавления ускорения
+    hButtonSpeed = CreateWindowW(L"BUTTON", L"Добавить Ускорение (+0.5 к скорости, -5 к броне)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 220, 300, 30, hWnd, (HMENU)ID_BUTTON_ADD_SPEED, hInst, nullptr);
+
+    // Кнопка сброса
+    hButtonReset = CreateWindowW(L"BUTTON", L"Сбросить персонажа",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 260, 200, 30, hWnd, (HMENU)ID_BUTTON_RESET, hInst, nullptr);
+
+    // Статическое текстовое поле для отображения информации
+    hStaticInfo = CreateWindowW(L"STATIC", L"Персонаж не создан",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | WS_BORDER,
+        20, 300, 700, 200, hWnd, nullptr, hInst, nullptr);
+
+    // Изначально деактивируем кнопки улучшений
+    EnableWindow(hButtonShield, FALSE);
+    EnableWindow(hButtonMagic, FALSE);
+    EnableWindow(hButtonStrength, FALSE);
+    EnableWindow(hButtonSpeed, FALSE);
+    EnableWindow(hButtonReset, FALSE);
+}
+
+
+void UpdateCharacterInfo(HWND hWnd)
+{
+    if (!currentCharacter) return;
+
+    std::wstringstream info;
+    info << L"Текущий персонаж: " << currentCharacter->GetDescription() << L"\n\n";
+    info << L"Характеристики:\n";
+    info << L"  Здоровье: " << currentCharacter->GetHealth() << L" HP\n";
+    info << L"  Урон: " << currentCharacter->GetDamage() << L"\n";
+    info << L"  Броня: " << currentCharacter->GetArmor() << L"\n";
+    info << L"  Скорость: " << currentCharacter->GetSpeed() << L"\n\n";
+    info << L"Количество улучшений: " << currentCharacter->GetDecoratorCount();
+
+    SetWindowTextW(hStaticInfo, info.str().c_str());
+}
+
+void ResetCharacter()
+{
+    currentCharacter.reset();
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_CREATE:
+        CreateControls(hWnd);
+        break;
+
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+
+        if (wmId >= ID_BUTTON_CREATE && wmId <= ID_BUTTON_RESET)
+        {
+            // Обработка нажатий кнопок
+            switch (wmId)
+            {
+            case ID_BUTTON_CREATE:
+            {
+                int selected = SendMessage(hComboCharacter, CB_GETCURSEL, 0, 0);
+
+                switch (selected)
+                {
+                case 0: // Питомец
+                    currentCharacter = std::make_shared<Pet>();
+                    break;
+                case 1: // NPC
+                    currentCharacter = std::make_shared<Npc>();
+                    break;
+                case 2: // Босс
+                    currentCharacter = std::make_shared<Boss>();
+                    break;
+                }
+
+                // Активируем кнопки улучшений
+                EnableWindow(hButtonShield, TRUE);
+                EnableWindow(hButtonMagic, TRUE);
+                EnableWindow(hButtonStrength, TRUE);
+                EnableWindow(hButtonSpeed, TRUE);
+                EnableWindow(hButtonReset, TRUE);
+
+                UpdateCharacterInfo(hWnd);
+                break;
+            }
+
+            case ID_BUTTON_ADD_SHIELD:
+                if (currentCharacter)
+                {
+                    currentCharacter = std::make_shared<ShieldDecorator>(currentCharacter);
+                    UpdateCharacterInfo(hWnd);
+                }
+                break;
+
+            case ID_BUTTON_ADD_MAGIC:
+                if (currentCharacter)
+                {
+                    currentCharacter = std::make_shared<MagicAuraDecorator>(currentCharacter);
+                    UpdateCharacterInfo(hWnd);
+                }
+                break;
+
+            case ID_BUTTON_ADD_STRENGTH:
+                if (currentCharacter)
+                {
+                    currentCharacter = std::make_shared<StrengthDecorator>(currentCharacter);
+                    UpdateCharacterInfo(hWnd);
+                }
+                break;
+
+            case ID_BUTTON_ADD_SPEED:
+                if (currentCharacter)
+                {
+                    currentCharacter = std::make_shared<SpeedDecorator>(currentCharacter);
+                    UpdateCharacterInfo(hWnd);
+                }
+                break;
+
+            case ID_BUTTON_RESET:
+                ResetCharacter();
+                SetWindowTextW(hStaticInfo, L"Персонаж сброшен. Создайте нового персонажа.");
+
+                // Деактивируем кнопки улучшений
+                EnableWindow(hButtonShield, FALSE);
+                EnableWindow(hButtonMagic, FALSE);
+                EnableWindow(hButtonStrength, FALSE);
+                EnableWindow(hButtonSpeed, FALSE);
+                EnableWindow(hButtonReset, FALSE);
+                break;
+            }
+        }
+        else
+        {
+            // Обработка меню
+            switch (wmId)
+            {
+            case IDM_ABOUT:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case IDM_EXIT:
+                DestroyWindow(hWnd);
+                break;
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+        }
+        break;
+    }
+
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        // Рисуем заголовок
+        HFONT hFont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+
+        HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
+        SetTextColor(hdc, RGB(0, 0, 150));
+        TextOutW(hdc, 20, 320, L"Информация о персонаже:", 23);
+
+        SelectObject(hdc, hOldFont);
+        DeleteObject(hFont);
+
+        EndPaint(hWnd, &ps);
+        break;
+    }
+
+    case WM_SIZE:
+    {
+        // Обновляем размеры элементов при изменении размера окна
+        int width = LOWORD(lParam);
+        int height = HIWORD(lParam);
+
+        // Можно добавить логику изменения размеров элементов
+        MoveWindow(hStaticInfo, 20, 350, width - 40, height - 380, TRUE);
+        break;
+    }
+
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+
+// Обработчик сообщений для окна "О программе"
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+    {
+        // Изменяем размер окна
+        RECT rcWindow;
+        GetWindowRect(hDlg, &rcWindow);
+        int width = 450;  // новая ширина
+        int height = 350; // новая высота
+
+        // Создаем элементы для окна "О программе"
+        HWND hText = CreateWindowW(L"STATIC",
+            L"Лабораторная работа №2: Паттерн Декоратор\n\n"
+            L"Динамическое добавление характеристик персонажу\n"
+            L"Используемые декораторы:\n"
+            L"1. Щит: +20 к броне\n"
+            L"2. Магическая аура: +25 к урону, +0.3 к скорости\n"
+            L"3. Усиление силы: +100 HP, +35 к урону, -0.2 к скорости\n"
+            L"4. Ускорение: +0.5 к скорости, -5 к броне",
+            WS_CHILD | WS_VISIBLE | SS_LEFT,
+            10, 10, 420, 280, hDlg, nullptr, hInst, nullptr);
+        return (INT_PTR)TRUE;
+    }
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
