@@ -15,24 +15,21 @@
    -уникальное хранение каждого объекта по его идентификатору.
    -быстрый доступ к объекту по ID. 
 
+-**GameObject** — абстрактный класс для игровых объектов.
+-**IdentityMap** — коллекция объектов.  
+-**Character** — пример класса персонажей.
+-**Main** — основной класс для демонстрации.
 
-
-
--**Класс Коллега (Collegue)** — абстрактный класс персонажей, которые взаимодействуют между собой.
--**Персонажи (Pet, Npc)** — реализует персонажей.  
-
--**Посредник (Mediator)** — абстрактный класс-посредник, который обеспечивает взаимодействие между объектами.  
--**GameMediator** — конкретная реализация посредника
 
 **Методы**
-   notify(self, sender, event, data=None) — абстрактный метод в классе Mediator.
-   send(self, event, data=None) — реализованный метод в классе Colleague.
-   handle_event(self, event, data) — абстрактный метод в классе Colleague.
-   register(self, character: Colleague) — реализованный метод в классе GameMediator.
+   -notify(self, sender, event, data=None) — абстрактный метод в классе Mediator.
+   -send(self, event, data=None) — реализованный метод в классе Colleague.
+   -handle_event(self, event, data) — абстрактный метод в классе Colleague.
+   -register(self, character: Colleague) — реализованный метод в классе GameMediator.
 
 **Атрибуты**
-   mediator — атрибут экземпляра класса Colleague, хранит ссылку на объект посредника (Mediator).
-   characters — список персонажей, зарегистрированных в посреднике (GameMediator).
+   -mediator — атрибут экземпляра класса Colleague, хранит ссылку на объект посредника (Mediator).
+   -characters — список персонажей, зарегистрированных в посреднике (GameMediator).
 
 # Диаграмма классов
 ![коллекция_объектов](./коллекция_объектов.png)
