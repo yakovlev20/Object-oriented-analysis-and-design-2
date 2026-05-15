@@ -2,8 +2,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import паттерн copy.src.DatabaseManager;
-
 // Убираем дженерик — DatabaseManager должен быть конкретным классом
 class SimpleGameObjectManager {
     private DatabaseManager db;
