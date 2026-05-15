@@ -1,3 +1,4 @@
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,6 +16,15 @@ public class DatabaseManager {
     public DatabaseManager() throws SQLException {
         this.connection = DriverManager.getConnection("jdbc:sqlite:game_objects.db");
         createTable();
+
+        // Проверка существования файла
+        File dbFile = new File("game_objects.db");
+        if (dbFile.exists()) {
+            System.out.println("Файл БД успешно создан: " + dbFile.getAbsolutePath());
+            System.out.println("Размер файла: " + dbFile.length() + " байт");
+        } else {
+            System.err.println("Ошибка: файл БД не создан!");
+        }
     }
 
     private void createTable() throws SQLException {

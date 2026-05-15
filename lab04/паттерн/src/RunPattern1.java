@@ -2,6 +2,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.swing.SwingUtilities;
+
 
 // Базовый класс для игровых объектов
 abstract class GameObject {
@@ -106,16 +108,10 @@ public class RunPattern1 {
     public static void main(String[] args) {
         IdentityMap collection = new IdentityMap();
 
-        // Создаём или получаем персонажа
-        String charId = "player1";
-        GameObject player = collection.get(charId);
-        if (player == null) {
-            player = new Character(charId, "Hero");
-            collection.add(player);
-        }
-
-        // Повторный запрос
-        GameObject samePlayer = collection.get(charId);
-        System.out.println("Объект: " + samePlayer.getName()); // Выведет "Hero"
+        // Запускаем GUI в EDT (Event Dispatch Thread)
+        SwingUtilities.invokeLater(() -> {
+            GameObjectGUI gui = new GameObjectGUI(collection);
+            gui.setVisible(true);
+        });
     }
 }
