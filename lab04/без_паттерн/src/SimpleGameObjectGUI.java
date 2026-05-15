@@ -16,25 +16,24 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class GameObjectGUI extends JFrame {
-    private IdentityMap identityMap;
+public class SimpleGameObjectGUI extends JFrame {
+    private SimpleGameObjectManager manager;
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField idField, nameField;
     private JButton addButton, getButton, removeButton, refreshButton;
 
-    public GameObjectGUI(IdentityMap identityMap) {
-        this.identityMap = identityMap;
+    public SimpleGameObjectGUI(SimpleGameObjectManager manager) {
+        this.manager = manager;
         initializeGUI();
     }
 
     private void initializeGUI() {
-        setTitle("Управление игровыми объектами");
+        setTitle("Управление игровыми объектами (без Identity Map)");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLocationRelativeTo(null);
 
-        // Создаём панель для ввода данных
         JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         inputPanel.setBorder(BorderFactory.createTitledBorder("Добавить/Получить объект"));
 
@@ -46,7 +45,6 @@ public class GameObjectGUI extends JFrame {
         nameField = new JTextField();
         inputPanel.add(nameField);
 
-        // Создаём кнопки
         addButton = new JButton("Добавить");
         getButton = new JButton("Получить");
         removeButton = new JButton("Удалить");
@@ -58,18 +56,15 @@ public class GameObjectGUI extends JFrame {
         buttonPanel.add(removeButton);
         buttonPanel.add(refreshButton);
 
-        // Создаём таблицу для отображения данных
         tableModel = new DefaultTableModel(new Object[]{"ID", "Имя"}, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Добавляем обработчики событий
         addButton.addActionListener(new AddButtonListener());
         getButton.addActionListener(new GetButtonListener());
         removeButton.addActionListener(new RemoveButtonListener());
         refreshButton.addActionListener(e -> refreshTable());
 
-        // Компоновка элементов
         setLayout(new BorderLayout(5, 5));
         add(inputPanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
@@ -78,17 +73,15 @@ public class GameObjectGUI extends JFrame {
         refreshTable();
     }
 
-    // Обновляет таблицу данными из IdentityMap
     private void refreshTable() {
-        tableModel.setRowCount(0); // Очищаем таблицу
-        Collection<GameObject> objects = identityMap.getAll();
+        tableModel.setRowCount(0);
+        Collection<GameObject> objects = manager.getAll();
 
         for (GameObject obj : objects) {
             tableModel.addRow(new Object[]{obj.getId(), obj.getName()});
         }
     }
 
-    // Обработчик для кнопки "Добавить"
     private class AddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -96,15 +89,15 @@ public class GameObjectGUI extends JFrame {
             String name = nameField.getText().trim();
 
             if (id.isEmpty() || name.isEmpty()) {
-                JOptionPane.showMessageDialog(GameObjectGUI.this,
+                JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                     "Заполните все поля!", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             GameObject newObject = new Character(id, name);
-            identityMap.add(newObject);
+            manager.add(newObject);
 
-            JOptionPane.showMessageDialog(GameObjectGUI.this,
+            JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                 "Объект добавлен: " + name);
 
             idField.setText("");
@@ -113,45 +106,43 @@ public class GameObjectGUI extends JFrame {
         }
     }
 
-    // Обработчик для кнопки "Получить"
     private class GetButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String id = idField.getText().trim();
 
             if (id.isEmpty()) {
-                JOptionPane.showMessageDialog(GameObjectGUI.this,
+                JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                     "Введите ID объекта!", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            GameObject obj = identityMap.get(id);
+            GameObject obj = manager.get(id);
 
             if (obj != null) {
-                JOptionPane.showMessageDialog(GameObjectGUI.this,
+                JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                     "Найден объект: " + obj.getName());
             } else {
-                JOptionPane.showMessageDialog(GameObjectGUI.this,
+                JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                     "Объект с ID " + id + " не найден!", "Информация",
                     JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
-    // Обработчик для кнопки "Удалить"
     private class RemoveButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String id = idField.getText().trim();
 
             if (id.isEmpty()) {
-                JOptionPane.showMessageDialog(GameObjectGUI.this,
+                JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                     "Введите ID объекта!", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            identityMap.remove(id);
-            JOptionPane.showMessageDialog(GameObjectGUI.this,
+            manager.remove(id);
+            JOptionPane.showMessageDialog(SimpleGameObjectGUI.this,
                 "Объект с ID " + id + " удалён");
             refreshTable();
         }

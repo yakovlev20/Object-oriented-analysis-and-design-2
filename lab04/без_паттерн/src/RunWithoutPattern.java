@@ -1,6 +1,8 @@
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.swing.SwingUtilities;
+
 // Базовый класс для игровых объектов
 abstract class GameObject {
     protected String id;
@@ -54,21 +56,15 @@ class Character extends GameObject {
 }
 
 // Основной класс для демонстрации
-public class RunPattern {
+public class RunWithoutPattern {
     public static void main(String[] args) {
-        IdentityMap collection = new IdentityMap();
+        SimpleGameObjectManager manager = new SimpleGameObjectManager();
 
-        // Создаем или получаем персонажа
-        String charId = "player1";
-        GameObject player = collection.get(charId);
-        if (player == null) {
-            player = new Character(charId, "Hero");
-            collection.add(player);
-        }
-
-        // Повторный запрос
-        GameObject samePlayer = collection.get(charId);
-        System.out.println("Объект: " + samePlayer.getName()); // Выведет "Hero"
+        // Запускаем GUI в EDT
+        SwingUtilities.invokeLater(() -> {
+            SimpleGameObjectGUI gui = new SimpleGameObjectGUI(manager);
+            gui.setVisible(true);
+        });
     }
 }
       
