@@ -15,12 +15,6 @@ class IdentityMap {
         loadFromCSV();
     }
 
-    //public IdentityMap(CSVManager csvManager) {
-    //    this.csvManager = csvManager;
-    //    this.cache = new HashMap<>();
-    //    loadFromCSV();
-    //}
-
     public Collection<GameObject> getAll() {
         return new ArrayList<>(cache.values());
 }
@@ -29,6 +23,8 @@ class IdentityMap {
         List<Map<String, String>> records = csvManager.getAllRecords();
         for (Map<String, String> record : records) {
             String id = record.get("id");
+            
+
             if (cache.containsKey(id)) {
                 System.err.println("Предупреждение: дублирующий ID " + id + " в CSV. Пропускаем запись.");
                 continue;
@@ -74,6 +70,9 @@ class IdentityMap {
         return null;
     }
 
+    /**
+     * @param obj
+     */
     public void put(GameObject obj) {
         if (obj == null) {
             throw new IllegalArgumentException("Объект не может быть null");
@@ -85,9 +84,14 @@ class IdentityMap {
 
         // Проверка на дубликат
         if (cache.containsKey(id)) {
-            throw new IllegalArgumentException("Объект с ID " + id + " уже существует");
+            throw new IllegalArgumentException("ID занят");
         }
-
+        //String uniqueId = id;
+        //if (cache.containsKey(id)) {
+        //    uniqueId = generateUniqueId(id);
+        //    System.out.println("ID " + id + " занят. Сгенерирован новый ID: " + uniqueId + " ");
+        //    obj.setId(uniqueId); // Обновляем ID в объекте
+        //}
 
         Map<String, String> record = new HashMap<>();
         record.put("id", obj.getId());
@@ -128,6 +132,17 @@ class IdentityMap {
         csvManager.deleteRecord(id);
         cache.remove(id);
     }
+
+    //private String generateUniqueId(String baseId) {
+    //        String candidateId = baseId;
+    //        int counter = 1;
+    //
+    //        while (cache.containsKey(candidateId)) {
+    //            candidateId = baseId + "_" + counter;
+    //            counter++;
+    //        }
+    //        return candidateId;
+    //    }
 }
 
 
@@ -154,6 +169,7 @@ abstract class GameObject {
     public double getY() { return y; }
 
     // Сеттеры
+    public void setId(String name) { this.name = name; }
     public void setName(String name) { this.name = name; }
     public void setType(String type) { this.type = type; }
     public void setX(double x) { this.x = x; }
@@ -179,27 +195,63 @@ class Character extends GameObject {
 }
 
 // Основной класс для демонстрации
+// Основной класс для демонстрации
 public class RunPattern1 {
     public static void main(String[] args) {
         try {
             IdentityMap identityMap = new IdentityMap();
 
+            // Выводим все объекты, загруженные из CSV
+            System.out.println("=== ОБЪЕКТЫ, ЗАГРУЖЕННЫЕ ИЗ CSV ===");
+            Collection<GameObject> allObjects = identityMap.getAll();
+            if (allObjects.isEmpty()) {
+                System.out.println("В базе данных нет объектов.");
+            } else {
+                for (GameObject obj : allObjects) {
+                    printObjectInfo(obj);
+                }
+            }
+            System.out.println(); // Пустая строка для разделения секций вывода
+
             // Пример использования — создаём экземпляр Character вместо GameObject
-            GameObject obj1 = new Character("1", "Player", 10.0, 20.0, 100, 1);
+            GameObject obj1 = new Character("7", "Player", 10.0, 20.0, 100, 1);
             identityMap.put(obj1);
 
-            GameObject retrieved = identityMap.get("1");
-            System.out.println("Retrieved: " + retrieved.getName());
+            System.out.println("Добавлен новый объект: " + obj1.getId() + " " + obj1.getName());
+            System.out.println();
 
-            // Дополнительно: демонстрируем работу с полями Character
-            if (retrieved instanceof Character) {
-                Character character = (Character) retrieved;
-                System.out.println("Health: " + character.getHealth());
-                System.out.println("Level: " + character.getLevel());
+            // Получаем объект по ID
+            GameObject retrieved = identityMap.get("1");
+            if (retrieved != null) {
+                System.out.println("Retrieved: " + retrieved.getName());
+
+                // Дополнительно: демонстрируем работу с полями Character
+                if (retrieved instanceof Character) {
+                    Character character = (Character) retrieved;
+                    System.out.println("Health: " + character.getHealth());
+                    System.out.println("Level: " + character.getLevel());
+                }
+            } else {
+                System.out.println("Объект с ID '1' не найден.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Вспомогательный метод для вывода информации об объекте
+    private static void printObjectInfo(GameObject obj) {
+        System.out.println("ID: " + obj.getId());
+        System.out.println("Name: " + obj.getName());
+        System.out.println("Type: " + obj.getType());
+        System.out.println("Position: (" + obj.getX() + ", " + obj.getY() + ")");
+
+        if (obj instanceof Character) {
+            Character character = (Character) obj;
+            System.out.println("  Health: " + character.getHealth());
+            System.out.println("  Level: " + character.getLevel());
+        }
+        System.out.println("---"); // Разделитель между объектами
     }
 }

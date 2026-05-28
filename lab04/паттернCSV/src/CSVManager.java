@@ -102,4 +102,9 @@ public class CSVManager {
         if (removed) saveData();
         return removed;
     }
+
+    public boolean recordExists(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'recordExists'");
+    }
 }

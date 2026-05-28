@@ -79,6 +79,7 @@ public class GameObjectGUI extends JFrame {
             new Object[]{"ID", "Имя", "X", "Y", "Здоровье", "Уровень"}, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Список игровых объектов"));
 
         // Добавляем обработчики событий
         addButton.addActionListener(new AddButtonListener());
@@ -106,6 +107,7 @@ public class GameObjectGUI extends JFrame {
                 tableModel.addRow(new Object[]{
                     obj.getId(),
             obj.getName(),
+            "Character",
             obj.getX(),
             obj.getY(),
             character.getHealth(),
