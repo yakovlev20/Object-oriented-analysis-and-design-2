@@ -16,20 +16,20 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class GameObjectGUI extends JFrame {
-    private IdentityMap identityMap;
+public class GameObjectGUI1 extends JFrame {
+    private DirectCSVManager csvManager;  // Изменено с IdentityMap на DirectCSVManager
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField idField, nameField, xField, yField, healthField, levelField;
-    private JButton addButton, getButton, removeButton, refreshButton;
+    private JButton addButton, getButton, removeButton, refreshButton, updateButton; // Добавлена кнопка обновления
 
-    public GameObjectGUI(IdentityMap identityMap) {
-        this.identityMap = identityMap;
+    public GameObjectGUI1(DirectCSVManager csvManager) {  // Изменен параметр конструктора
+        this.csvManager = csvManager;
         initializeGUI();
     }
 
     private void initializeGUI() {
-        setTitle("Демонстрация IdentityMap");
+        setTitle("Управление игровыми объектами (Direct CSV)");  // Изменен заголовок
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
@@ -66,12 +66,14 @@ public class GameObjectGUI extends JFrame {
         // Кнопки управления
         addButton = new JButton("Добавить");
         getButton = new JButton("Получить");
+        updateButton = new JButton("Обновить");  // Новая кнопка
         removeButton = new JButton("Удалить");
         refreshButton = new JButton("Обновить таблицу");
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addButton);
         buttonPanel.add(getButton);
+        buttonPanel.add(updateButton);  // Добавляем кнопку обновления
         buttonPanel.add(removeButton);
         buttonPanel.add(refreshButton);
 
@@ -102,6 +104,7 @@ public class GameObjectGUI extends JFrame {
         // Обработчики событий
         addButton.addActionListener(new AddButtonListener());
         getButton.addActionListener(new GetButtonListener());
+        updateButton.addActionListener(new UpdateButtonListener());  // Обработчик для обновления
         removeButton.addActionListener(new RemoveButtonListener());
         refreshButton.addActionListener(e -> refreshTable());
 
@@ -125,10 +128,10 @@ public class GameObjectGUI extends JFrame {
         refreshTable(); // Первоначальное заполнение таблицы
     }
 
-    // Обновление таблицы данными из IdentityMap
+    // Обновление таблицы данными из CSV
     private void refreshTable() {
         tableModel.setRowCount(0);
-        Collection<GameObject> objects = identityMap.getAll();
+        Collection<GameObject> objects = csvManager.getAll();  // Используем DirectCSVManager
 
         for (GameObject obj : objects) {
             if (obj instanceof Character) {
@@ -168,7 +171,7 @@ public class GameObjectGUI extends JFrame {
                 }
 
                 GameObject newObject = new Character(id, name, x, y, health, level);
-                identityMap.put(newObject);
+                csvManager.put(newObject);  // Используем DirectCSVManager
                 showInfo("Объект добавлен: " + name);
                 clearFields();
                 refreshTable();
@@ -190,7 +193,7 @@ public class GameObjectGUI extends JFrame {
                 return;
             }
 
-            GameObject obj = identityMap.get(id);
+            GameObject obj = csvManager.get(id);  // Используем DirectCSVManager
             if (obj != null) {
                 if (obj instanceof Character) {
                     Character character = (Character) obj;
@@ -210,6 +213,43 @@ public class GameObjectGUI extends JFrame {
         }
     }
 
+    // Обработчик кнопки «Обновить»
+    private class UpdateButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                String id = idField.getText().trim();
+                String name = nameField.getText().trim();
+                double x = Double.parseDouble(xField.getText().trim());
+                double y = Double.parseDouble(yField.getText().trim());
+                int health = Integer.parseInt(healthField.getText().trim());
+                int level = Integer.parseInt(levelField.getText().trim());
+
+                if (id.isEmpty()) {
+                    showError("Введите ID объекта для обновления!");
+                    return;
+                }
+
+                // Сначала проверяем, существует ли объект
+                GameObject existingObj = csvManager.get(id);
+                if (existingObj == null) {
+                    showError("Объект с ID " + id + " не найден!");
+                    return;
+                }
+
+                // Создаем обновленный объект
+                GameObject updatedObject = new Character(id, name, x, y, health, level);
+                csvManager.update(updatedObject);  // Используем DirectCSVManager
+                showInfo("Объект с ID " + id + " обновлен");
+                refreshTable();
+            } catch (NumberFormatException ex) {
+                showError("Введите корректные числовые значения!");
+            } catch (IllegalArgumentException ex) {
+                showError(ex.getMessage());
+            }
+        }
+    }
+
     // Обработчик кнопки «Удалить»
     private class RemoveButtonListener implements ActionListener {
         @Override
@@ -220,8 +260,16 @@ public class GameObjectGUI extends JFrame {
                 return;
             }
 
-            identityMap.remove(id);
+            // Проверяем, существует ли объект
+            GameObject obj = csvManager.get(id);
+            if (obj == null) {
+                showInfo("Объект с ID " + id + " не найден!");
+                return;
+            }
+
+            csvManager.remove(id);  // Используем DirectCSVManager
             showInfo("Объект с ID " + id + " удалён");
+            clearFields();
             refreshTable();
         }
     }
@@ -245,9 +293,11 @@ public class GameObjectGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        IdentityMap identityMap = new IdentityMap();
+        // Создаем DirectCSVManager вместо IdentityMap
+        DirectCSVManager csvManager = new DirectCSVManager();
+        
         javax.swing.SwingUtilities.invokeLater(() -> {
-            GameObjectGUI gui = new GameObjectGUI(identityMap);
+            GameObjectGUI1 gui = new GameObjectGUI1(csvManager);
             gui.setVisible(true);
         });
     }

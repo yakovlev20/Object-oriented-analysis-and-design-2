@@ -214,7 +214,7 @@ public class RunPattern1 {
             System.out.println(); // Пустая строка для разделения секций вывода
 
             // Пример использования — создаём экземпляр Character вместо GameObject
-            GameObject obj1 = new Character("7", "Player", 10.0, 20.0, 100, 1);
+            GameObject obj1 = new Character("8", "Player", 10.0, 20.0, 100, 1);
             identityMap.put(obj1);
 
             System.out.println("Добавлен новый объект: " + obj1.getId() + " " + obj1.getName());

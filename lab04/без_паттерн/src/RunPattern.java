@@ -153,7 +153,7 @@ class Character extends GameObject {
 }
 
 // Основной класс для демонстрации
-public class RunPattern1 {
+public class RunPattern {
     public static void main(String[] args) {
         try {
             DirectCSVManager manager = new DirectCSVManager();
@@ -171,7 +171,7 @@ public class RunPattern1 {
             System.out.println(); // Пустая строка для разделения секций вывода
 
             // Пример использования — создаём экземпляр Character
-            GameObject obj1 = new Character("7", "Player", 10.0, 20.0, 100, 1);
+            GameObject obj1 = new Character("9", "Player", 10.0, 20.0, 100, 1);
             manager.put(obj1);
 
             System.out.println("Добавлен новый объект: " + obj1.getId() + " " + obj1.getName());
