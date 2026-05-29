@@ -148,10 +148,10 @@ class IdentityMap {
 
 // Базовый класс для игровых объектов
 abstract class GameObject {
-    private String id;
-    private String name;
-    private String type;
-    private double x, y;
+    protected String id;
+    protected String name;
+    protected String type;
+    protected double x, y;
 
     public GameObject(String id, String name, String type, double x, double y) {
         this.id = id;
@@ -195,8 +195,7 @@ class Character extends GameObject {
 }
 
 // Основной класс для демонстрации
-// Основной класс для демонстрации
-public class RunPattern1 {
+public class RunPattern2 {
     public static void main(String[] args) {
         try {
             IdentityMap identityMap = new IdentityMap();
